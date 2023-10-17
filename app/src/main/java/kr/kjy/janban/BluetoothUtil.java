@@ -69,7 +69,7 @@ public class BluetoothUtil {
         if(missingPermissions) {
             if (showRationale) {
                 showRationaleDialog(fragment, (dialog, which) ->
-                requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT));
+                        requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT));
             } else {
                 requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
             }
