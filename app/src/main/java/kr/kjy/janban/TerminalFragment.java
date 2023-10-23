@@ -1,5 +1,16 @@
 package kr.kjy.janban;
 
+import android.util.Log;
+import android.widget.Button;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -8,6 +19,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.Editable;
@@ -27,8 +39,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
 
+import java.io.IOException;
 import java.util.ArrayDeque;
 
 public class TerminalFragment extends Fragment implements ServiceConnection, SerialListener {
@@ -39,7 +53,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     private SerialService service;
 
     private TextView receiveText;
-    private TextView sendText;
     private TextUtil.HexWatcher hexWatcher;
 
     private Connected connected = Connected.False;
@@ -52,7 +65,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         float rating = 0.0f;
 
         if (weight >= 0 && weight <= 6) {
-            rating = 5.0f; // 만점
+            rating = 5.0f; // Maximum rating
         } else if (weight >= 7 && weight <= 12) {
             rating = 4.0f;
         } else if (weight >= 13 && weight <= 18) {
@@ -65,6 +78,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
         return rating;
     }
+
     /*
      * Lifecycle
      */
@@ -90,7 +104,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         if(service != null)
             service.attach(this);
         else
-            getActivity().startService(new Intent(getActivity(), SerialService.class)); // prevents service destroy on unbind from recreated activity caused by orientation change
+            getActivity().startService(new Intent(getActivity(), SerialService.class));
     }
 
     @Override
@@ -143,20 +157,71 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_terminal, container, false);
-        receiveText = view.findViewById(R.id.receive_text);                          // TextView performance decreases with number of spans
-        receiveText.setTextColor(getResources().getColor(R.color.colorRecieveText)); // set as default color to reduce number of spans
+        receiveText = view.findViewById(R.id.receive_text);
+        receiveText.setTextColor(getResources().getColor(R.color.colorRecieveText));
         receiveText.setMovementMethod(ScrollingMovementMethod.getInstance());
 
-        sendText = view.findViewById(R.id.send_text);
-        hexWatcher = new TextUtil.HexWatcher(sendText);
-        hexWatcher.enable(hexEnabled);
-        sendText.addTextChangedListener(hexWatcher);
-        sendText.setHint(hexEnabled ? "HEX mode" : "");
+        AppCompatImageButton sendButton = view.findViewById(R.id.send_btn);
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("MyApp", "Button Clicked");
+                // Handle the button click here
+                sendDataToServer();
+            }
+        });
 
-        View sendBtn = view.findViewById(R.id.send_btn);
-        sendBtn.setOnClickListener(v -> send(sendText.getText().toString()));
+
         return view;
     }
+
+
+    private void sendDataToServer() {
+        String receivedData = receiveText.getText().toString();
+
+        OkHttpClient client = new OkHttpClient();
+        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), receivedData);
+        Request request = new Request.Builder()
+                .url("http://13.125.42.215/")
+                .post(requestBody)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), "Data transmission failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getActivity(), "Data transmission was successful", Toast.LENGTH_SHORT).show();
+                                                    }
+                    });
+                } else {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getActivity(), "Data transmission failed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+
+
+
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
@@ -185,6 +250,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
         builder.show();
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -203,23 +269,11 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
             });
             builder.create().show();
             return true;
-        } else if (id == R.id.hex) {
-            hexEnabled = !hexEnabled;
-            sendText.setText("");
-            hexWatcher.enable(hexEnabled);
-            sendText.setHint(hexEnabled ? "HEX mode" : "");
-            item.setChecked(hexEnabled);
-            return true;
 
-
-        }
-
-        else if (id == R.id.ratingBar) {
+        } else if (id == R.id.ratingBar) {
             showRatingDialog();
             return true;
-        }
-
-        else {
+        } else {
             return super.onOptionsItemSelected(item);
         }
     }
@@ -247,56 +301,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         service.disconnect();
     }
 
-    private void send(String str) {
-        if (connected != Connected.True) {
-            Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        insertDataIntoDatabase(str);
-
-        try {
-            String msg;
-            byte[] data;
-            if(hexEnabled) {
-                StringBuilder sb = new StringBuilder();
-                TextUtil.toHexString(sb, TextUtil.fromHexString(str));
-                TextUtil.toHexString(sb, newline.getBytes());
-                msg = sb.toString();
-                data = TextUtil.fromHexString(msg);
-            } else {
-                msg = str;
-                data = (str + newline).getBytes();
-            }
-            SpannableStringBuilder spn = new SpannableStringBuilder(msg + '\n');
-            spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            receiveText.append(spn);
-            service.write(data);
-        } catch (Exception e) {
-            onSerialIoError(e);
-        }
-    }
-
-    private void insertDataIntoDatabase(String data) {
-        // 데이터베이스에 무게와 UID를 저장
-        try {
-            String[] parts = data.split(","); // 가정: 데이터는 "무게, UID" 형식으로 제공됨
-            if (parts.length == 2) {
-                String weight = parts[0].trim();
-                String uid = parts[1].trim();
-                sqldb dbHelper = new sqldb(getActivity());
-
-                // 데이터베이스에 데이터 삽입
-                dbHelper.insertData("Weight", weight);
-                dbHelper.insertData("UID", uid);
-
-                // 데이터베이스 연결 종료
-                dbHelper.close();
-            }
-        } catch (Exception e) {
-            // 데이터 삽입 중 오류 처리
-        }
-    }
     private void receive(ArrayDeque<byte[]> datas) {
         SpannableStringBuilder spn = new SpannableStringBuilder();
         for (byte[] data : datas) {
@@ -305,9 +309,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
             } else {
                 String msg = new String(data);
                 if (newline.equals(TextUtil.newline_crlf) && msg.length() > 0) {
-                    // don't show CR as ^M if directly before LF
                     msg = msg.replace(TextUtil.newline_crlf, TextUtil.newline_lf);
-                    // special handling if CR and LF come in separate fragments
                     if (pendingNewline && msg.charAt(0) == '\n') {
                         if(spn.length() >= 2) {
                             spn.delete(spn.length() - 2, spn.length());
@@ -348,6 +350,8 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
     @Override
     public void onSerialRead(byte[] data) {
+        String receivedData = new String(data);
+
         ArrayDeque<byte[]> datas = new ArrayDeque<>();
         datas.add(data);
         receive(datas);
@@ -362,5 +366,4 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         status("connection lost: " + e.getMessage());
         disconnect();
     }
-
 }

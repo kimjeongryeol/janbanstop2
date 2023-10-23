@@ -7,7 +7,7 @@ import androidx.appcompat.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
 
-    private sqldb dbManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         setContentView(R.layout.activity_main);
 
         // SQLite 데이터베이스 초기화 및 연결
-        dbManager = new sqldb(this);
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -40,8 +40,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 
     @Override
     protected void onDestroy() {
-        // 액티비티가 파괴될 때 데이터베이스 연결 종료
-        dbManager.close();
+
         super.onDestroy();
     }
 }
