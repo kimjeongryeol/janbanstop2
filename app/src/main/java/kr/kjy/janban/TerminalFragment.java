@@ -61,6 +61,9 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     private boolean pendingNewline = false;
     private String newline = TextUtil.newline_crlf;
 
+    private ArrayDeque<byte[]> receivedDataList; // 멤버 변수로 선언
+
+
     private float calculateRating(float weight) {
         float rating = 0.0f;
 
@@ -154,76 +157,10 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     /*
      * UI
      */
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_terminal, container, false);
-        receiveText = view.findViewById(R.id.receive_text);
-        receiveText.setTextColor(getResources().getColor(R.color.colorRecieveText));
-        receiveText.setMovementMethod(ScrollingMovementMethod.getInstance());
-
-        AppCompatImageButton sendButton = view.findViewById(R.id.send_btn);
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("MyApp", "Button Clicked");
-                // Handle the button click here
-                sendDataToServer();
-            }
-        });
-
-
-        return view;
-    }
-
-
-    private void sendDataToServer() {
-        String receivedData = receiveText.getText().toString();
-
-        OkHttpClient client = new OkHttpClient();
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), receivedData);
-        Request request = new Request.Builder()
-                .url("http://13.125.42.215/")
-                .post(requestBody)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getActivity(), "Data transmission failed", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getActivity(), "Data transmission was successful", Toast.LENGTH_SHORT).show();
-                                                    }
-                    });
-                } else {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getActivity(), "Data transmission failed", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            }
-        });
-    }
 
 
 
-
-
-    @Override
+        @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_terminal, menu);
         menu.findItem(R.id.hex).setChecked(hexEnabled);
@@ -249,6 +186,71 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         });
 
         builder.show();
+    }
+
+
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_terminal, container, false);
+        receiveText = view.findViewById(R.id.receive_text);
+        receiveText.setTextColor(getResources().getColor(R.color.colorRecieveText));
+        receiveText.setMovementMethod(ScrollingMovementMethod.getInstance());
+
+
+        AppCompatImageButton sendButton = view.findViewById(R.id.send_btn);
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 이제 receivedDataList에 여기에서 액세스할 수 있습니다
+                sendDataToServer(receivedDataList);
+                Log.d("MyApp", "Button Clicked");
+            }
+        });
+
+        // receivedDataList 초기화
+        receivedDataList = new ArrayDeque<>();
+
+        return view;
+    }
+
+
+    private void sendDataToServer(ArrayDeque<byte[]> dataQueue) {
+        StringBuilder dataBuilder = new StringBuilder();
+
+        for (byte[] data : dataQueue) {
+            String receivedData = new String(data);
+            dataBuilder.append(receivedData);
+        }
+
+        String data = dataBuilder.toString();
+
+        OkHttpClient client = new OkHttpClient();
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), data);
+        Request request = new Request.Builder()
+                .url("http://13.125.42.215/")
+                .post(requestBody)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // 실패 처리
+                e.printStackTrace(); // 예외를 로깅
+                Log.e("MyApp", "데이터 전송 실패: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    // 성공 처리
+                    Log.d("MyApp", "데이터 전송 성공");
+                } else {
+                    // 서버 응답 오류 처리
+                    Log.e("MyApp", "데이터 전송 오류: " + response.code());
+                }
+            }
+        });
     }
 
     @Override
