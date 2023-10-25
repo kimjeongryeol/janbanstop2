@@ -239,9 +239,8 @@ public class SerialService extends Service implements SerialListener {
                                 queue1.add(new QueueItem(QueueType.Read, datas));
                             }
 
-                            synchronized (receivedDataList) {
-                                receivedDataList.addAll(datas);
-                            }
+                            // 공유 목록에 수신된 데이터 추가
+                            SharedDataList.getInstance().addReceivedData(data);
                         });
                     }
                 } else {
@@ -249,9 +248,8 @@ public class SerialService extends Service implements SerialListener {
                         queue2.add(new QueueItem(QueueType.Read));
                     queue2.getLast().add(data);
 
-                    synchronized (receivedDataList) {
-                        receivedDataList.add(data);
-                    }
+                    // 공유 목록에 수신된 데이터 추가
+                    SharedDataList.getInstance().addReceivedData(data);
                 }
             }
         }

@@ -44,6 +44,7 @@ import androidx.fragment.app.Fragment;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
+import java.util.List;
 
 public class TerminalFragment extends Fragment implements ServiceConnection, SerialListener {
 
@@ -197,19 +198,52 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         receiveText.setTextColor(getResources().getColor(R.color.colorRecieveText));
         receiveText.setMovementMethod(ScrollingMovementMethod.getInstance());
 
-
         AppCompatImageButton sendButton = view.findViewById(R.id.send_btn);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 이제 receivedDataList에 여기에서 액세스할 수 있습니다
-                sendDataToServer(receivedDataList);
-                Log.d("MyApp", "Button Clicked");
+                List<byte[]> receivedDataList = SharedDataList.getInstance().getReceivedDataList();
+
+                StringBuilder dataBuilder = new StringBuilder();
+
+                for (byte[] data : receivedDataList) {
+                    String receivedData = new String(data);
+                    dataBuilder.append(receivedData);
+                }
+
+                String data = dataBuilder.toString();
+
+                Log.d("MyApp", "Data to be transmitted: " + data);
+
+                OkHttpClient client = new OkHttpClient();
+                RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), data);
+                Request request = new Request.Builder()
+                        .url("http://13.125.42.215/")
+                        .post(requestBody)
+                        .build();
+
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String errorMessage = "데이터 전송 실패: " + e.getMessage();
+                        showToast(errorMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (response.isSuccessful()) {
+                            showToast("데이터 전송 성공");
+                        } else {
+                            String errorMessage = "데이터 전송 오류: " + response.code();
+                            showToast(errorMessage);
+                        }
+                    }
+                });
             }
         });
 
         // receivedDataList 초기화
-        receivedDataList = new ArrayDeque<>();
+        // receivedDataList = new ArrayDeque<>(); // No longer needed
 
         return view;
     }
@@ -224,6 +258,8 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         }
 
         String data = dataBuilder.toString();
+
+        Log.d("MyApp", "Data to be transmitted: " + data);
 
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), data);
@@ -359,6 +395,8 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
     @Override
     public void onSerialRead(byte[] data) {
+        SharedDataList.getInstance().addReceivedData(data); // Add received data to the shared list
+
         String receivedData = new String(data);
 
         ArrayDeque<byte[]> datas = new ArrayDeque<>();
