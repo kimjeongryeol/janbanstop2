@@ -160,7 +160,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
 
 
-        @Override
+    @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_terminal, menu);
         menu.findItem(R.id.hex).setChecked(hexEnabled);
@@ -236,20 +236,27 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
             @Override
             public void onFailure(Call call, IOException e) {
                 // 실패 처리
-                e.printStackTrace(); // 예외를 로깅
-                Log.e("MyApp", "데이터 전송 실패: " + e.getMessage());
+                String errorMessage = "데이터 전송 실패: " + e.getMessage();
+                showToast(errorMessage);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
                     // 성공 처리
-                    Log.d("MyApp", "데이터 전송 성공");
+                    showToast("데이터 전송 성공");
                 } else {
                     // 서버 응답 오류 처리
-                    Log.e("MyApp", "데이터 전송 오류: " + response.code());
+                    String errorMessage = "데이터 전송 오류: " + response.code();
+                    showToast(errorMessage);
                 }
             }
+        });
+    }
+
+    private void showToast(String message) {
+        getActivity().runOnUiThread(() -> {
+            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
         });
     }
 
