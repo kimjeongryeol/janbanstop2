@@ -218,7 +218,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
                 OkHttpClient client = new OkHttpClient();
                 RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), data);
                 Request request = new Request.Builder()
-                        .url("http://13.125.42.215/")
+                        .url("http://3.35.21.200/")
                         .post(requestBody)
                         .build();
 
@@ -264,7 +264,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), data);
         Request request = new Request.Builder()
-                .url("http://13.125.42.215/")
+                .url("http://3.35.21.200/")
                 .post(requestBody)
                 .build();
 

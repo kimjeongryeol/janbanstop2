@@ -9,10 +9,6 @@
     android:padding="16dp"
     android:gravity="center">
 
-    <ImageView
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:contentDescription="@string/app_name" />
 
     <EditText
         android:id="@+id/NewUsername"

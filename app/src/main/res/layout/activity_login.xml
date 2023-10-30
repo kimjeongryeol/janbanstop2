@@ -9,11 +9,6 @@
     android:padding="16dp"
     android:gravity="center">
 
-    <ImageView
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-
-        android:contentDescription="@string/app_name"/>
 
     <EditText
         android:id="@+id/Username"
@@ -38,7 +33,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Sign Up" />
-
 
     <Button
         android:id="@+id/login_btn"

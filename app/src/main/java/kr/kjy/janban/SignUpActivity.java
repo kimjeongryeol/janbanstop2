@@ -1,5 +1,6 @@
 package kr.kjy.janban;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -7,45 +8,72 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class SignUpActivity extends AppCompatActivity {
-    private EditText newUsernameEditText;
-    private EditText newPasswordEditText;
-    private Button signUpSubmitButton;
+
+    private EditText et_id, et_pass;
+    private Button btn_register;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.sign_up);
+        super.onCreate( savedInstanceState );
+        setContentView( R.layout.sign_up );
 
-        newUsernameEditText = findViewById(R.id.NewUsername);
-        newPasswordEditText = findViewById(R.id.NewPassword);
-        signUpSubmitButton = findViewById(R.id.buttonSignUpSubmit);
+        //아이디값 찾아주기
+        et_id = findViewById( R.id.NewUsername );
+        et_pass = findViewById( R.id.NewPassword );
 
-        signUpSubmitButton.setOnClickListener(new View.OnClickListener() {
+
+
+        //회원가입 버튼 클릭 시 수행
+        btn_register = findViewById( R.id.buttonSignUpSubmit);
+        btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                String newUsername = newUsernameEditText.getText().toString();
-                String newPassword = newPasswordEditText.getText().toString();
+            public void onClick(View view) {
+                String userID = et_id.getText().toString();
+                String userPass = et_pass.getText().toString();
 
-                if (isValidSignUp(newUsername, newPassword)) {
-                    // 회원 가입 작업 수행 (예: 새 사용자를 데이터베이스에 저장)
-                    showToast("회원 가입 성공!");
-                    finish(); // 회원 가입 액티비티 닫기
-                } else {
-                    // 오류 메시지 표시
-                    showToast("회원 가입 실패. 사용자 이름이 이미 존재하거나 잘못된 데이터입니다.");
-                }
+
+
+                Response.Listener<String> responseListener = new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        try {
+                            JSONObject jsonObject = new JSONObject( response );
+                            boolean success = jsonObject.getBoolean( "success" );
+
+                            //회원가입 성공시
+                            if(success) {
+
+                                Toast.makeText( getApplicationContext(), "성공", Toast.LENGTH_SHORT ).show();
+                                Intent intent = new Intent( SignUpActivity.this, LoginActivity.class );
+                                startActivity( intent );
+
+                                //회원가입 실패시
+                            } else {
+                                Toast.makeText( getApplicationContext(), "실패", Toast.LENGTH_SHORT ).show();
+                                return;
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                };
+
+                //서버로 Volley를 이용해서 요청
+                SignUpReQuest registerRequest = new SignUpReQuest(userID, userPass, responseListener, null);
+                RequestQueue queue = Volley.newRequestQueue( SignUpActivity.this );
+                queue.add( registerRequest );
             }
         });
-    }
-
-    private boolean isValidSignUp(String newUsername, String newPassword) {
-        // 이 로직을 실제로 유효성 검사 논리로 교체하세요 (예: 사용자 이름이 이미 존재하는지 확인)
-        // 이 예에서는 필드가 비어 있지 않으면 회원 가입이 성공했다고 가정합니다.
-        return !newUsername.isEmpty() && !newPassword.isEmpty();
-    }
-
-    private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }
