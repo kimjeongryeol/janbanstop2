@@ -9,4 +9,8 @@
     <item
         android:id="@+id/bt_settings"
         android:title="Bluetooth settings" />
+
+    <item
+        android:id="@+id/User_profile"
+        android:title="User profile" />
 </menu>

@@ -92,19 +92,31 @@ public class DevicesFragment extends ListFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.bt_settings) {
+            // Bluetooth settings 메뉴 항목을 선택한 경우
             Intent intent = new Intent();
             intent.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
             startActivity(intent);
             return true;
         } else if (id == R.id.bt_refresh) {
-            if(BluetoothUtil.hasPermissions(this, requestBluetoothPermissionLauncherForRefresh))
+            // Refresh 메뉴 항목을 선택한 경우
+            if (BluetoothUtil.hasPermissions(this, requestBluetoothPermissionLauncherForRefresh)) {
                 refresh();
+            }
+            return true;
+        } else if (id == R.id.User_profile) {
+            openUserProfile(); // 사용자 정의 메서드
             return true;
         } else {
             return super.onOptionsItemSelected(item);
         }
     }
 
+    private void openUserProfile() {
+        // User Profile 화면을 열도록 코드를 추가
+        // 예를 들어, 다음과 같이 User Profile 화면으로 이동할 수 있습니다.
+        Intent intent = new Intent(getContext(), UserProfileActivity.class);; // UserProfileActivity는 사용자 프로필을 나타내는 액티비티 클래스로 대체해야 합니다.
+        startActivity(intent);
+    }
     @SuppressLint("MissingPermission")
     void refresh() {
         listItems.clear();

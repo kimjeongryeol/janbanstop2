@@ -5,6 +5,7 @@ import android.widget.Button;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -216,9 +217,12 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
                 Log.d("MyApp", "Data to be transmitted: " + data);
 
                 OkHttpClient client = new OkHttpClient();
-                RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), data);
+                RequestBody requestBody = new FormBody.Builder()
+                        .add("bluedata", data)
+                        .build();
+
                 Request request = new Request.Builder()
-                        .url("http://3.35.21.200/")
+                        .url("http://tina908.dothome.co.kr/Send.php")
                         .post(requestBody)
                         .build();
 
@@ -233,6 +237,8 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
                     public void onResponse(Call call, Response response) throws IOException {
                         if (response.isSuccessful()) {
                             showToast("데이터 전송 성공");
+
+
                         } else {
                             String errorMessage = "데이터 전송 오류: " + response.code();
                             showToast(errorMessage);
@@ -242,53 +248,9 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
             }
         });
 
-        // receivedDataList 초기화
-        // receivedDataList = new ArrayDeque<>(); // No longer needed
-
         return view;
     }
 
-
-    private void sendDataToServer(ArrayDeque<byte[]> dataQueue) {
-        StringBuilder dataBuilder = new StringBuilder();
-
-        for (byte[] data : dataQueue) {
-            String receivedData = new String(data);
-            dataBuilder.append(receivedData);
-        }
-
-        String data = dataBuilder.toString();
-
-        Log.d("MyApp", "Data to be transmitted: " + data);
-
-        OkHttpClient client = new OkHttpClient();
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), data);
-        Request request = new Request.Builder()
-                .url("http://3.35.21.200/")
-                .post(requestBody)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                // 실패 처리
-                String errorMessage = "데이터 전송 실패: " + e.getMessage();
-                showToast(errorMessage);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    // 성공 처리
-                    showToast("데이터 전송 성공");
-                } else {
-                    // 서버 응답 오류 처리
-                    String errorMessage = "데이터 전송 오류: " + response.code();
-                    showToast(errorMessage);
-                }
-            }
-        });
-    }
 
     private void showToast(String message) {
         getActivity().runOnUiThread(() -> {
@@ -298,30 +260,46 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.clear) {
-            receiveText.setText("");
-            return true;
-        } else if (id == R.id.newline) {
-            String[] newlineNames = getResources().getStringArray(R.array.newline_names);
-            String[] newlineValues = getResources().getStringArray(R.array.newline_values);
-            int pos = java.util.Arrays.asList(newlineValues).indexOf(newline);
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Newline");
-            builder.setSingleChoiceItems(newlineNames, pos, (dialog, item1) -> {
-                newline = newlineValues[item1];
-                dialog.dismiss();
-            });
-            builder.create().show();
-            return true;
+        switch (item.getItemId()) {
+            case R.id.User_UI:
+                // "User" 메뉴를 눌렀을 때 실행될 코드를 여기에 추가합니다.
+                // 예를 들어, "YourUserActivity"를 시작하고 "barchart.xml" 레이아웃을 표시합니다.
+                // TerminalFragment 내에서 BarChartActivity를 시작하기 위한 코드
+                Intent intent = new Intent(getContext(), UserUiActivity.class);
+                startActivity(intent);
 
-        } else if (id == R.id.ratingBar) {
-            showRatingDialog();
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
+                startActivity(intent);
+                return true;
+            case R.id.clear:
+                // "clear" 메뉴를 눌렀을 때 실행될 코드를 여기에 추가합니다.
+                // 예를 들어, 텍스트를 지웁니다.
+                receiveText.setText("");
+                return true;
+            case R.id.newline:
+                // "newline" 메뉴를 눌렀을 때 실행될 코드를 여기에 추가합니다.
+                // 예를 들어, 다이얼로그를 표시합니다.
+                String[] newlineNames = getResources().getStringArray(R.array.newline_names);
+                String[] newlineValues = getResources().getStringArray(R.array.newline_values);
+                int pos = java.util.Arrays.asList(newlineValues).indexOf(newline);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Newline");
+                builder.setSingleChoiceItems(newlineNames, pos, (dialog, item1) -> {
+                    newline = newlineValues[item1];
+                    dialog.dismiss();
+                });
+                builder.create().show();
+                return true;
+            case R.id.ratingBar:
+                // "ratingBar" 메뉴를 눌렀을 때 실행될 코드를 여기에 추가합니다.
+                // 예를 들어, 별점 다이얼로그를 표시합니다.
+                showRatingDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
+
+
 
 
 

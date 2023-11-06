@@ -21,4 +21,12 @@
         android:title="Star Score"
         app:showAsAction="never"
         app:actionViewClass="android.widget.RatingBar" />
+
+    <item
+        android:id="@+id/User_UI"
+        android:title="User"
+        app:showAsAction="never"
+        app:actionViewClass="android.widget.RatingBar" />
+
+
 </menu>

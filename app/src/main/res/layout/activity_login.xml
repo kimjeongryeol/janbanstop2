@@ -9,9 +9,14 @@
     android:padding="16dp"
     android:gravity="center">
 
+    <ImageView
+        android:id="@+id/myImageView"
+        android:layout_width="500px"
+        android:layout_height="500px"
+        android:src="@mipmap/ic_launcher" />
 
     <EditText
-        android:id="@+id/Username"
+        android:id="@+id/et_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -19,7 +24,7 @@
         android:minHeight="48dp" />
 
     <EditText
-        android:id="@+id/Password"
+        android:id="@+id/et_pass"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -29,17 +34,19 @@
 
 
     <Button
-        android:id="@+id/SignUp_btn"
+        android:id="@+id/btn_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign Up" />
+        android:layout_marginTop="8dp"
+        android:text="login" />
+
 
     <Button
-        android:id="@+id/login_btn"
+        android:id="@+id/btn_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="login"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="8dp"
+        android:text="signup" />
 
 
 </LinearLayout>
