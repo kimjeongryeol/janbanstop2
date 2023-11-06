@@ -262,22 +262,15 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.User_UI:
-                // "User" 메뉴를 눌렀을 때 실행될 코드를 여기에 추가합니다.
-                // 예를 들어, "YourUserActivity"를 시작하고 "barchart.xml" 레이아웃을 표시합니다.
-                // TerminalFragment 내에서 BarChartActivity를 시작하기 위한 코드
                 Intent intent = new Intent(getContext(), UserUiActivity.class);
                 startActivity(intent);
 
                 startActivity(intent);
                 return true;
             case R.id.clear:
-                // "clear" 메뉴를 눌렀을 때 실행될 코드를 여기에 추가합니다.
-                // 예를 들어, 텍스트를 지웁니다.
                 receiveText.setText("");
                 return true;
             case R.id.newline:
-                // "newline" 메뉴를 눌렀을 때 실행될 코드를 여기에 추가합니다.
-                // 예를 들어, 다이얼로그를 표시합니다.
                 String[] newlineNames = getResources().getStringArray(R.array.newline_names);
                 String[] newlineValues = getResources().getStringArray(R.array.newline_values);
                 int pos = java.util.Arrays.asList(newlineValues).indexOf(newline);
