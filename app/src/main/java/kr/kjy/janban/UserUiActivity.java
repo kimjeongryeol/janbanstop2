@@ -59,11 +59,13 @@ public class UserUiActivity extends AppCompatActivity {
 
         // Replace with the date you want to retrieve the menu for
         String date = formatDate(currentDate, "yyyy-MM-dd");
-        new RetrieveMenuTask().execute(scriptUrl, date);
+        new RetrieveMenuTask(menuText).execute(scriptUrl, formatDate(getPreviousDate(currentDate, 0), "yyyy-MM-dd"));
 // Execute the network request asynchronously for menuText2 with the previous date
-        new RetrieveMenuTask().execute(scriptUrl, formatDate(getPreviousDate(currentDate, 1), "yyyy-MM-dd"));
+        // Execute the network request asynchronously for menuText2 with the previous date
+        new RetrieveMenuTask(menuText2).execute(scriptUrl, formatDate(getPreviousDate(currentDate, 1), "yyyy-MM-dd"));
 // Execute the network request asynchronously for menuText3 with the date before yesterday
-        new RetrieveMenuTask().execute(scriptUrl, formatDate(getPreviousDate(currentDate, 2), "yyyy-MM-dd"));
+        new RetrieveMenuTask(menuText3).execute(scriptUrl, formatDate(getPreviousDate(currentDate, 2), "yyyy-MM-dd"));
+
     }
 
     private Date getPreviousDate(Date currentDate, int daysAgo) {
@@ -78,7 +80,12 @@ public class UserUiActivity extends AppCompatActivity {
         return sdf.format(date);
     }
 
-    private class RetrieveMenuTask extends AsyncTask<String, Void, String> {
+    public class RetrieveMenuTask extends AsyncTask<String, Void, String> {
+        private TextView menuTextView;
+
+        public RetrieveMenuTask(TextView menuTextView) {
+            this.menuTextView = menuTextView;
+        }
         @Override
         protected String doInBackground(String... params) {
             String scriptUrl = params[0];
@@ -115,15 +122,13 @@ public class UserUiActivity extends AppCompatActivity {
         protected void onPostExecute(String menuData) {
             if ("Menu not found".equals(menuData)) {
                 // Handle the case when the menu is not found
-                menuText.setText("Menu not found");
-                menuText2.setText("Menu not found");
-                menuText3.setText("Menu not found");
+                menuTextView.setText("Menu not found");
             } else if (menuData != null && !menuData.isEmpty()) {
                 // Handle the case when the menu data is available
-                menuText.setText(menuData);
+                menuTextView.setText(menuData);
             } else {
                 // Handle other error cases
-                menuText.setText("An error occurred");
+                menuTextView.setText("An error occurred");
             }
         }
     }

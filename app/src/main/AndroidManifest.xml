@@ -16,6 +16,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
+
         <!-- 액티비티 설정 -->
         <activity
             android:name=".LoginActivity"

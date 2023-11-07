@@ -192,7 +192,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
                         .build();
 
                 Request request = new Request.Builder()
-                        .url("http://tina908.dothome.co.kr/Send.php")
+                        .url("http://tina908.dothome.co.kr/Sendblue.php")
                         .post(requestBody)
                         .build();
 
