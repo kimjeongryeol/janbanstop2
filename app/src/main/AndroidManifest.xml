@@ -42,6 +42,10 @@
             android:name=".UserProfileActivity"
             android:label="User Profile">
         </activity>
+        <activity android:name="kr.kjy.janban.UserAvgActivity">
+            <!-- 필요한 인텐트 필터 설정 (있는 경우) -->
+        </activity>
+
 
         <!-- 서비스 설정 -->
         <service android:name=".SerialService" />

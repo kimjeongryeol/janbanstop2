@@ -163,36 +163,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
 
     @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_terminal, menu);
-        menu.findItem(R.id.hex).setChecked(hexEnabled);
-    }
-
-    private void showRatingDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Star Score");
-
-        RatingBar ratingBar = new RatingBar(getActivity());
-
-        // Set the maximum number of stars (5) and the initial rating based on the result of calculateRating method.
-        ratingBar.setMax(5);
-        ratingBar.setRating(calculateRating(0));
-
-        // Make the RatingBar non-editable.
-        ratingBar.setIsIndicator(true);
-
-        builder.setView(ratingBar);
-
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            // You do not need to handle the rating in this case, so leave this section empty.
-        });
-
-        builder.show();
-    }
-
-
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_terminal, container, false);
         receiveText = view.findViewById(R.id.receive_text);
@@ -261,15 +231,20 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.User_UI:
-                Intent intent = new Intent(getContext(), UserUiActivity.class);
-                startActivity(intent);
+            case R.id.User_avg:
+                Intent avgintent = new Intent(getContext(), UserAvgActivity.class);
+                startActivity(avgintent);
+                break;
 
-                startActivity(intent);
-                return true;
+            case R.id.User_UI:
+                Intent userintent = new Intent(getContext(), UserUiActivity.class);
+                startActivity(userintent);
+                break;
+
             case R.id.clear:
                 receiveText.setText("");
                 return true;
+
             case R.id.newline:
                 String[] newlineNames = getResources().getStringArray(R.array.newline_names);
                 String[] newlineValues = getResources().getStringArray(R.array.newline_values);
@@ -282,19 +257,20 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
                 });
                 builder.create().show();
                 return true;
-            case R.id.ratingBar:
-                // "ratingBar" 메뉴를 눌렀을 때 실행될 코드를 여기에 추가합니다.
-                // 예를 들어, 별점 다이얼로그를 표시합니다.
-                showRatingDialog();
-                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
+        return false;
     }
 
 
 
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_terminal, menu);
 
+    }
 
     /*
      * Serial + UI

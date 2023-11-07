@@ -18,7 +18,7 @@ import org.json.JSONObject;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText et_id, et_pass, et_name, et_age;
+    private EditText et_id, et_pass, et_name, et_UID;
     private Button btn_register;
 
     @Override
@@ -30,7 +30,7 @@ public class RegisterActivity extends AppCompatActivity {
         et_id = findViewById( R.id.et_id );
         et_pass = findViewById( R.id.et_pass );
         et_name = findViewById( R.id.et_name );
-        et_age = findViewById( R.id.et_age );
+        et_UID = findViewById( R.id.et_UID );
 
 
         //회원가입 버튼 클릭 시 수행
@@ -42,7 +42,7 @@ public class RegisterActivity extends AppCompatActivity {
                 String userID = et_id.getText().toString();
                 String userPass = et_pass.getText().toString();
                 String userName = et_name.getText().toString();
-                int userAge = Integer.parseInt(et_age.getText().toString());
+                int userAge = Integer.parseInt(et_UID.getText().toString());
 
                 Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override

@@ -216,7 +216,6 @@ public class SerialService extends Service implements SerialListener {
 
     public void onSerialRead(ArrayDeque<byte[]> datas) { throw new UnsupportedOperationException(); }
 
-    private List<byte[]> receivedDataList = new ArrayList<>();
     public void onSerialRead(byte[] data) {
         if (connected) {
             synchronized (this) {
@@ -239,7 +238,7 @@ public class SerialService extends Service implements SerialListener {
                                 queue1.add(new QueueItem(QueueType.Read, datas));
                             }
 
-                            // 공유 목록에 수신된 데이터 추가
+
                             SharedDataList.getInstance().addReceivedData(data);
                         });
                     }
@@ -248,7 +247,7 @@ public class SerialService extends Service implements SerialListener {
                         queue2.add(new QueueItem(QueueType.Read));
                     queue2.getLast().add(data);
 
-                    // 공유 목록에 수신된 데이터 추가
+
                     SharedDataList.getInstance().addReceivedData(data);
                 }
             }

@@ -10,23 +10,18 @@
         android:id="@+id/newline"
         android:title="Newline"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/hex"
-        android:title="HEX Mode"
-        android:checkable="true"
-        app:showAsAction="never" />
 
-    <item
-        android:id="@+id/ratingBar"
-        android:title="Star Score"
-        app:showAsAction="never"
-        app:actionViewClass="android.widget.RatingBar" />
 
     <item
         android:id="@+id/User_UI"
+        android:title="Menu"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/User_avg"
         android:title="User"
-        app:showAsAction="never"
-        app:actionViewClass="android.widget.RatingBar" />
+        app:showAsAction="never" />
+
 
 
 </menu>
