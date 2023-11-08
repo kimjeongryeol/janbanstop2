@@ -121,7 +121,7 @@ public class UserUiActivity extends AppCompatActivity {
 
         protected void onPostExecute(String menuData) {
             if ("Menu not found".equals(menuData)) {
-                // Handle the case when the menu is not found
+
                 menuTextView.setText("Menu not found");
             } else if (menuData != null && !menuData.isEmpty()) {
                 // Handle the case when the menu data is available
